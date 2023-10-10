@@ -1,5 +1,6 @@
 <resources>
     <style name="BaseTheme" parent="Theme.Material3.DynamicColors.DayNight">
+        <item name="android:listDivider">@drawable/divider_bg</item>
         <item name="actionBarTheme">@style/AppTheme</item>
         <item name="preferenceTheme">@style/AppTheme</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
