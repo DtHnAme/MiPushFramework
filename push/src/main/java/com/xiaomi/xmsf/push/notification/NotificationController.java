@@ -297,6 +297,9 @@ public class NotificationController {
         if (text == null) {
             text = ApplicationNameCache.getInstance().getAppName(context, packageName);
         }
+        if (getNotificationManagerEx().isSystemHookReady()) {
+            return;
+        }
         int color = localBuilder.getColor();
         if (color == Notification.COLOR_DEFAULT) {
             localBuilder.setSubText(text);
