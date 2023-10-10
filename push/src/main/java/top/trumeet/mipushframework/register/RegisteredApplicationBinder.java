@@ -2,7 +2,10 @@ package top.trumeet.mipushframework.register;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.util.TypedValue;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 
@@ -30,14 +33,20 @@ public class RegisteredApplicationBinder extends BaseAppsBinder<RegisteredApplic
         Context context = holder.itemView.getContext();
         fillData(item.getPackageName(), true,
                 holder);
-        //todo res color
-        int ErrorColor = Color.parseColor("#FFF41804");
+        int ErrorColor = context.getColor(R.color.text_color_error);
         holder.text2.setText(null);
         if (!item.existServices) {
             holder.text2.setText(R.string.mipush_services_not_found);
             holder.text2.setTextColor(ErrorColor);
         }
-        holder.summary.setText(null);
+
+        TypedValue typedValue = new TypedValue();
+        context.getTheme().resolveAttribute(android.R.attr.textColorPrimary, typedValue, true);
+        TypedArray array = context.obtainStyledAttributes(typedValue.data, new int[]{android.R.attr.textColorPrimary});
+
+        holder.summary.setText(R.string.no_pushed);
+        holder.summary.setTextColor(array.getColor(0, -1));
+
         if (item.lastReceiveTime.getTime() != 0) {
             holder.summary.setText(String.format("%s%s",
                     context.getString(R.string.last_receive),
@@ -49,13 +58,13 @@ public class RegisteredApplicationBinder extends BaseAppsBinder<RegisteredApplic
                 break;
             }
             case 2: {
-                holder.status.setText(R.string.app_registered_error);
-                holder.status.setTextColor(ErrorColor);
+                holder.summary.setText(R.string.app_registered_error);
+                holder.summary.setTextColor(ErrorColor);
                 break;
             }
             case 0: {
-                holder.status.setText(R.string.status_app_not_registered);
-                holder.status.setTextColor(holder.title.getTextColors());
+                holder.summary.setText(R.string.status_app_not_registered);
+                holder.summary.setTextColor(ErrorColor);
                 break;
             }
         }
@@ -65,5 +74,10 @@ public class RegisteredApplicationBinder extends BaseAppsBinder<RegisteredApplic
                 .putExtra(ManagePermissionsActivity.EXTRA_PACKAGE_NAME,
                         item.getPackageName())
                 .putExtra(ManagePermissionsActivity.EXTRA_IGNORE_NOT_REGISTERED, true)));
+
+        if (holder.status.getText().equals(""))
+            holder.status.setVisibility(View.GONE);
+        if (holder.text2.getText().equals(""))
+            holder.text2.setVisibility(View.GONE);
     }
 }
