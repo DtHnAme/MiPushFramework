@@ -9,7 +9,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -42,6 +44,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Set;
 
+import top.trumeet.common.cache.ApplicationNameCache;
 import top.trumeet.mipush.provider.event.Event;
 import top.trumeet.mipush.provider.event.EventType;
 import top.trumeet.mipush.provider.event.type.TypeFactory;
@@ -61,6 +64,13 @@ public class EventItemBinder extends BaseAppsBinder<Event> {
 
     EventItemBinder() {
         super();
+    }
+
+    @NonNull
+    @Override
+    protected ViewHolder onCreateViewHolder(@NonNull LayoutInflater inflater, @NonNull ViewGroup parent) {
+        return new ViewHolder(inflater.inflate(R.layout.preference_notif, parent,
+                false));
     }
 
     @Override
@@ -89,25 +99,29 @@ public class EventItemBinder extends BaseAppsBinder<Event> {
 
         Calendar calendarServer = Calendar.getInstance();
         calendarServer.setTime(new Date(item.getDate()));
-        int zoneOffset = calendarServer.get(java.util.Calendar.ZONE_OFFSET);
-        int dstOffset = calendarServer.get(java.util.Calendar.DST_OFFSET);
+        int zoneOffset = calendarServer.get(Calendar.ZONE_OFFSET);
+        int dstOffset = calendarServer.get(Calendar.DST_OFFSET);
         calendarServer.add(java.util.Calendar.MILLISECOND, (zoneOffset + dstOffset));
-        DateFormat formatter = SimpleDateFormat.getDateTimeInstance();
+        DateFormat formatter = new SimpleDateFormat("MM-dd");
+        if (formatter.format(calendarServer.getTime()).equals(formatter.format(new Date()))) {
+            formatter = new SimpleDateFormat("HH:mm");
+        }
+
+        if (status.isEmpty()) {
+            status = ApplicationNameCache.getInstance().getAppName(holder.itemView.getContext(), item.getPkg()).toString();
+        }
 
         holder.text2.setText(holder.itemView.getContext().getString(R.string.date_format_long,
                 formatter.format(calendarServer.getTime())));
         holder.status.setText(status);
 
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Dialog dialog = createInfoDialog(item,
-                        holder.itemView.getContext()); // "Developer info" dialog for event messages
-                if (dialog != null) {
-                    dialog.show();
-                } else {
-                    startManagePermissions(type.getPkg(), holder.itemView.getContext());
-                }
+        holder.itemView.setOnClickListener(view -> {
+            Dialog dialog = createInfoDialog(item,
+                    holder.itemView.getContext()); // "Developer info" dialog for event messages
+            if (dialog != null) {
+                dialog.show();
+            } else {
+                startManagePermissions(type.getPkg(), holder.itemView.getContext());
             }
         });
     }
