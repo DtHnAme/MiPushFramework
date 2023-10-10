@@ -20,7 +20,6 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.elvishew.xlog.XLog;
-import com.nihility.notification.NotificationManagerEx;
 import com.oasisfeng.condom.CondomOptions;
 import com.oasisfeng.condom.CondomProcess;
 import com.topjohnwu.superuser.Shell;
@@ -34,6 +33,8 @@ import com.xiaomi.xmsf.push.control.PushControllerUtils;
 import com.xiaomi.xmsf.push.control.XMOutbound;
 import com.xiaomi.xmsf.push.service.MiuiPushActivateService;
 import com.xiaomi.xmsf.utils.LogUtils;
+
+import org.lsposed.hiddenapibypass.HiddenApiBypass;
 
 import java.lang.reflect.Field;
 
@@ -67,6 +68,9 @@ public class MiPushFrameworkApp extends Application {
     @Override
     public void attachBaseContext(Context context) {
         super.attachBaseContext(context);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            HiddenApiBypass.addHiddenApiExemptions("");
+        }
         DatabaseUtils.init(this);
     }
 
@@ -78,9 +82,6 @@ public class MiPushFrameworkApp extends Application {
 
         initLogger();
         hookMiPushSDK();
-
-        NotificationManagerEx.notificationManager = (NotificationManager)
-                getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
 
         RxActivityResult.register(this);
 
